@@ -17,11 +17,10 @@ const app = express();
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: "https://chat-app-frontend-pink-beta.vercel.app",
+  origin: "https://chat-app-frontend-pink-beta.vercel.app/",
   credentials: true
 }))
 app.use(cookieParser());
-
 
 app.use("/api/user", userRoute);
 app.use("/api/chat", chatRoute);
@@ -36,7 +35,7 @@ const server = createServer(app);
 const io = new Server(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://chat-app-frontend-pink-beta.vercel.app/",
   }
 })
 // On connecting to client we get a socket 
@@ -47,7 +46,7 @@ const onlineUser = new Map();
 io.on("connection", (socket) => {
   console.log("Client is now connected");
   // here we are creating a new Socket with name 'setup' through this socket we will take data from frontend
-  // On the frontend side we will emit the socket with name 'setup'
+  // On the frontend side we will emit the socket with name 'setup'. 
   socket.on("setup", (userData) => {
     socket.join(userData._id) // this join function will create a room in we multiple client can connect
     onlineUser.set(userData._id, socket.id)
@@ -61,7 +60,6 @@ io.on("connection", (socket) => {
   socket.on("new-message", (newMessageRecieved) => {
     let { chat } = newMessageRecieved;
     if (!chat.users) return
-
     chat.users.forEach((user) => {
       if (user._id === newMessageRecieved.sender._id) {
         return;
@@ -70,7 +68,6 @@ io.on("connection", (socket) => {
     }
     )
   })
-
   socket.on("typing", (room) => {
     socket.in(room).emit("typing")
   })
